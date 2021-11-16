@@ -40,7 +40,7 @@ public class ClienteRestController {
         Cliente clienteActual = clienteService.findById(id);
         clienteActual.setApellido(cliente.getApellido());
         clienteActual.setNombre(cliente.getNombre());
-        clienteActual.setEmail(cliente.getApellido());
+        clienteActual.setEmail(cliente.getEmail());
 
         return clienteService.save(clienteActual);
 
