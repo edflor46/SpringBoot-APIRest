@@ -3,11 +3,15 @@ package com.edflor.springboot.backend.apirest.controllers;
 import com.edflor.springboot.backend.apirest.models.entity.Cliente;
 import com.edflor.springboot.backend.apirest.services.IClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = { "http://localhost:4200", "*" })
 @RestController
@@ -24,8 +28,24 @@ public class ClienteRestController {
 
     @GetMapping("/cliente/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Cliente show(@PathVariable Long id){
-        return clienteService.findById(id);
+    public ResponseEntity<?> show(@PathVariable Long id){
+
+        Cliente cliente = null;
+        Map<String, Object> response = new HashMap<>();
+        try {
+            cliente = clienteService.findById(id);
+        }catch (DataAccessException e){
+            response.put("mensaje", "Error al realizar la peticion");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+
+
+        if (cliente == null){
+            response.put("mensaje", "El cliente con el ID: ".concat(id.toString().concat(" no es un id valido")));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Cliente>(cliente, HttpStatus.OK);
     }
 
     @PostMapping("/clientes")
